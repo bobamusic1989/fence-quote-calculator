@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fence Quote Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 24px 32px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            height: calc(100vh - 89px);
+        }
+
+        .map-section {
+            position: relative;
+            background: #f1f5f9;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .map-toolbar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: flex;
+            gap: 4px;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .toolbar-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .toolbar-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .map-stats {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            min-width: 200px;
+        }
+
+        .map-stats h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .controls-panel {
+            background: white;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .panel-section {
+            padding: 24px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #111827;
+            background: white;
+            transition: all 0.15s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .material-options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .material-option {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+        }
+
+        .material-option:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .material-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .material-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .material-name {
+            font-weight: 600;
+            color: #111827;
+            font-size: 15px;
+        }
+
+        .material-price {
+            font-size: 13px;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .material-description {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+
+        .quote-summary {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .quote-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        .quote-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .quote-line.total {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+            padding-top: 12px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .quote-label {
+            color: #6b7280;
+        }
+
+        .quote-value {
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .quote-line.total .quote-value {
+            color: #059669;
+            font-size: 18px;
+        }
+
+        .btn-quote {
+            width: 100%;
+            padding: 16px 20px;
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            margin-top: 16px;
+        }
+
+        .btn-quote:hover {
+            background: #047857;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            max-width: 400px;
+        }
+
+        .notification.success { border-left: 4px solid #10b981; }
+        .notification.error { border-left: 4px solid #ef4444; }
+        .notification.info { border-left: 4px solid #3b82f6; }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: 400px 1fr;
+            }
+            
+            .map-section {
+                border-right: none;
+                border-bottom: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Fence Quote Calculator</h1>
+            <div class="header-subtitle">Design your fence and get instant pricing</div>
+        </header>
+
+        <div class="main-layout">
+            <div class="map-section">
+                <div class="map-container" id="map"></div>
+                
+                <div class="map-toolbar">
+                    <button class="toolbar-btn" onclick="toggleDrawing()">Draw Fence</button>
+                    <button class="toolbar-btn" onclick="undoLast()">Undo</button>
+                    <button class="toolbar-btn" onclick="clearAll()">Clear All</button>
+                </div>
+
+                <div class="map-stats">
+                    <h4>Project Measurements</h4>
+                    <div class="stat-row">
+                        <span class="stat-label">Total Length:</span>
+                        <span class="stat-value" id="totalLength">0 ft</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Status:</span>
+                        <span class="stat-value" id="drawingStatus">Double-click to start</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="panel-section">
+                    <h2 class="section-title">Property Address</h2>
+                    <div class="form-group">
+                        <label class="form-label">Enter your address</label>
+                        <input type="text" id="address" class="form-input" placeholder="123 Main Street, City, State">
+                        <button class="btn-primary" onclick="findAddress()" style="margin-top: 8px;">
+                            Locate Property
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h2 class="section-title">Select Material</h2>
+                    <div class="material-options">
+                        <div class="material-option selected" onclick="selectMaterial('gabion')">
+                            <div class="material-header">
+                                <div class="material-name">Gabion Fence</div>
+                                <div class="material-price">$35-55/ft</div>
+                            </div>
+                            <div class="material-description">Stone-filled wire baskets for modern, durable boundaries</div>
+                        </div>
+
+                        <div class="material-option" onclick="selectMaterial('hardwood')">
+                            <div class="material-header">
+                                <div class="material-name">Hardwood Fence</div>
+                                <div class="material-price">$28-45/ft</div>
+                            </div>
+                            <div class="material-description">Premium timber construction with natural beauty</div>
+                        </div>
+
+                        <div class="material-option" onclick="selectMaterial('aluminum')">
+                            <div class="material-header">
+                                <div class="material-name">Aluminum Fence</div>
+                                <div class="material-price">$22-38/ft</div>
+                            </div>
+                            <div class="material-description">Powder-coated metal panels, rust-resistant</div>
+                        </div>
+
+                        <div class="material-option" onclick="selectMaterial('artificial_foliage')">
+                            <div class="material-header">
+                                <div class="material-name">Artificial FR Foliage</div>
+                                <div class="material-price">$30-50/ft</div>
+                            </div>
+                            <div class="material-description">Fire-resistant synthetic greenery for privacy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <div class="quote-summary">
+                        <h3 class="quote-title">Cost Estimate</h3>
+                        <div class="quote-line">
+                            <span class="quote-label">Linear Footage:</span>
+                            <span class="quote-value" id="quoteFeet">0 ft</span>
+                        </div>
+                        <div class="quote-line">
+                            <span class="quote-label">Material Cost:</span>
+                            <span class="quote-value" id="materialCost">$0</span>
+                        </div>
+                        <div class="quote-line">
+                            <span class="quote-label">Labor:</span>
+                            <span class="quote-value" id="laborCost">$0</span>
+                        </div>
+                        <div class="quote-line total">
+                            <span class="quote-label">Total Estimate:</span>
+                            <span class="quote-value" id="totalCost">$0</span>
+                        </div>
+                        <button class="btn-quote" onclick="requestQuote()">
+                            Request Detailed Quote
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        var map;
+        var fenceLines = [];
+        var isDrawing = false;
+        var currentPath = [];
+        var activeLine = null;
+        var totalLength = 0;
+        var selectedMaterial = 'gabion';
+
+        // Material pricing
+        var materialPricing = {
+            gabion: { min: 35, max: 55, labor: 20 },
+            hardwood: { min: 28, max: 45, labor: 18 },
+            aluminum: { min: 22, max: 38, labor: 15 },
+            artificial_foliage: { min: 30, max: 50, labor: 16 }
+        };
+
+        var materialNames = {
+            gabion: 'Gabion Fence',
+            hardwood: 'Hardwood Fence',
+            aluminum: 'Aluminum Fence',
+            artificial_foliage: 'Artificial FR Foliage'
+        };
+
+        // Initialize Google Map
+        function initMap() {
+            console.log('Initializing map...');
+            
+            map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 18,
+                center: { lat: 40.7128, lng: -74.0060 },
+                mapTypeId: 'satellite',
+                disableDefaultUI: true,
+                zoomControl: true,
+                streetViewControl: false,
+                fullscreenControl: false,
+                disableDoubleClickZoom: true
+            });
+
+            // Add map event listeners
+            google.maps.event.addListener(map, 'dblclick', function(event) {
+                handleDoubleClick(event);
+            });
+
+            google.maps.event.addListener(map, 'click', function(event) {
+                handleClick(event);
+            });
+
+            console.log('Map initialized successfully');
+            updateQuoteDisplay();
+        }
+
+        // Handle double click events
+        function handleDoubleClick(event) {
+            if (!isDrawing) {
+                startDrawing(event.latLng);
+            } else {
+                finishDrawing();
+            }
+        }
+
+        // Handle click events
+        function handleClick(event) {
+            if (isDrawing) {
+                addPoint(event.latLng);
+            }
+        }
+
+        // Start drawing a fence line
+        function startDrawing(startPoint) {
+            console.log('Starting to draw...');
+            isDrawing = true;
+            currentPath = [startPoint];
+            
+            activeLine = new google.maps.Polyline({
+                path: currentPath,
+                strokeColor: '#3b82f6',
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                editable: false
+            });
+            
+            activeLine.setMap(map);
+            updateStatus('Click to add points, double-click to finish');
+            
+            var drawBtn = document.querySelector('.toolbar-btn');
+            if (drawBtn) {
+                drawBtn.classList.add('active');
+            }
+        }
+
+        // Add a point to the current drawing
+        function addPoint(point) {
+            if (isDrawing && activeLine) {
+                currentPath.push(point);
+                activeLine.setPath(currentPath);
+                updateCurrentLength();
+            }
+        }
+
+        // Finish the current drawing
+        function finishDrawing() {
+            console.log('Finishing drawing...');
+            
+            if (isDrawing && activeLine && currentPath.length > 1) {
+                activeLine.setEditable(true);
+                fenceLines.push(activeLine);
+                
+                // Add edit listeners
+                google.maps.event.addListener(activeLine.getPath(), 'set_at', function() {
+                    calculateTotalLength();
+                });
+                google.maps.event.addListener(activeLine.getPath(), 'insert_at', function() {
+                    calculateTotalLength();
+                });
+                google.maps.event.addListener(activeLine.getPath(), 'remove_at', function() {
+                    calculateTotalLength();
+                });
+            }
+            
+            // Reset drawing state
+            isDrawing = false;
+            currentPath = [];
+            activeLine = null;
+            updateStatus('Double-click to start');
+            
+            var drawBtn = document.querySelector('.toolbar-btn');
+            if (drawBtn) {
+                drawBtn.classList.remove('active');
+            }
+            
+            calculateTotalLength();
+        }
+
+        // Toggle drawing mode
+        function toggleDrawing() {
+            if (isDrawing) {
+                // Cancel current drawing
+                if (activeLine) {
+                    activeLine.setMap(null);
+                }
+                isDrawing = false;
+                currentPath = [];
+                activeLine = null;
+                updateStatus('Double-click to start');
+                
+                var drawBtn = document.querySelector('.toolbar-btn');
+                if (drawBtn) {
+                    drawBtn.classList.remove('active');
+                }
+            } else {
+                updateStatus('Double-click on map to start drawing');
+            }
+        }
+
+        // Update current length while drawing
+        function updateCurrentLength() {
+            if (currentPath.length > 1) {
+                var length = 0;
+                for (var i = 0; i < currentPath.length - 1; i++) {
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                        currentPath[i],
+                        currentPath[i + 1]
+                    );
+                    length += distance * 3.28084; // Convert to feet
+                }
+                
+                var totalDisplay = totalLength + length;
+                document.getElementById('totalLength').textContent = Math.round(totalDisplay) + ' ft';
+            }
+        }
+
+        // Calculate total length of all fence lines
+        function calculateTotalLength() {
+            totalLength = 0;
+            
+            for (var i = 0; i < fenceLines.length; i++) {
+                var line = fenceLines[i];
+                if (line && line.getPath) {
+                    var path = line.getPath();
+                    for (var j = 0; j < path.getLength() - 1; j++) {
+                        var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                            path.getAt(j),
+                            path.getAt(j + 1)
+                        );
+                        totalLength += distance * 3.28084;
+                    }
+                }
+            }
+            
+            document.getElementById('totalLength').textContent = Math.round(totalLength) + ' ft';
+            updateQuoteDisplay();
+        }
+
+        // Update status display
+        function updateStatus(status) {
+            var statusElement = document.getElementById('drawingStatus');
+            if (statusElement) {
+                statusElement.textContent = status;
+            }
+        }
+
+        // Find address using geocoding
+        function findAddress() {
+            var address = document.getElementById('address').value;
+            if (!address) {
+                showNotification('Please enter an address', 'error');
+                return;
+            }
+
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: address }, function(results, status) {
+                if (status === 'OK') {
+                    map.setCenter(results[0].geometry.location);
+                    map.setZoom(19);
+                    
+                    new google.maps.Marker({
+                        position: results[0].geometry.location,
+                        map: map,
+                        title: address
+                    });
+                    
+                    showNotification('Property located successfully', 'success');
+                } else {
+                    showNotification('Address not found', 'error');
+                }
+            });
+        }
+
+        // Select material
+        function selectMaterial(material) {
+            selectedMaterial = material;
+            
+            // Update UI
+            var options = document.querySelectorAll('.material-option');
+            for (var i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
+            event.target.classList.add('selected');
+            
+            updateQuoteDisplay();
+        }
+
+        // Update quote display
+        function updateQuoteDisplay() {
+            var pricing = materialPricing[selectedMaterial];
+            if (!pricing) return;
+            
+            var footage = Math.round(totalLength);
+            var materialCost = Math.round(totalLength * ((pricing.min + pricing.max) / 2));
+            var laborCost = Math.round(totalLength * pricing.labor);
+            var total = materialCost + laborCost;
+
+            document.getElementById('quoteFeet').textContent = footage + ' ft';
+            document.getElementById('materialCost').textContent = '$' + formatNumber(materialCost);
+            document.getElementById('laborCost').textContent = '$' + formatNumber(laborCost);
+            document.getElementById('totalCost').textContent = '$' + formatNumber(total);
+        }
+
+        // Format number with commas
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Undo last action
+        function undoLast() {
+            if (isDrawing && currentPath.length > 1) {
+                currentPath.pop();
+                if (activeLine) {
+                    activeLine.setPath(currentPath);
+                    updateCurrentLength();
+                }
+                showNotification('Point removed', 'info');
+            } else if (fenceLines.length > 0) {
+                var lastLine = fenceLines.pop();
+                lastLine.setMap(null);
+                calculateTotalLength();
+                showNotification('Last fence line removed', 'info');
+            } else {
+                showNotification('Nothing to undo', 'info');
+            }
+        }
+
+        // Clear all drawings
+        function clearAll() {
+            // Cancel current drawing
+            if (isDrawing && activeLine) {
+                activeLine.setMap(null);
+                isDrawing = false;
+                currentPath = [];
+                activeLine = null;
+                updateStatus('Double-click to start');
+                
+                var drawBtn = document.querySelector('.toolbar-btn');
+                if (drawBtn) {
+                    drawBtn.classList.remove('active');
+                }
+            }
+            
+            // Clear all fence lines
+            for (var i = 0; i < fenceLines.length; i++) {
+                fenceLines[i].setMap(null);
+            }
+            fenceLines = [];
+            totalLength = 0;
+            
+            calculateTotalLength();
+            showNotification('All drawings cleared', 'success');
+        }
+
+        // Request quote
+        function requestQuote() {
+            if (totalLength === 0) {
+                showNotification('Please draw your fence first', 'error');
+                return;
+            }
+            
+            var pricing = materialPricing[selectedMaterial];
+            var footage = Math.round(totalLength);
+            var materialCost = Math.round(totalLength * ((pricing.min + pricing.max) / 2));
+            var laborCost = Math.round(totalLength * pricing.labor);
+            var total = materialCost + laborCost;
+            var address = document.getElementById('address').value || 'Address not specified';
+            
+            var quoteInfo = 'Quote Request Generated!\n\n' +
+                'Material: ' + materialNames[selectedMaterial] + '\n' +
+                'Length: ' + footage + ' ft\n' +
+                'Material Cost: $' + formatNumber(materialCost) + '\n' +
+                'Labor Cost: $' + formatNumber(laborCost) + '\n' +
+                'Total Estimate: $' + formatNumber(total) + '\n' +
+                'Property: ' + address + '\n\n' +
+                'A detailed quote will be sent to your email.';
+            
+            alert(quoteInfo);
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            var notification = document.createElement('div');
+            notification.className = 'notification ' + type;
+            
+            var title = type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Info';
+            notification.innerHTML = '<div style="font-weight: 500; margin-bottom: 4px;">' + title + '</div>' +
+                                   '<div style="font-size: 14px; color: #6b7280;">' + message + '</div>';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Initialize when page loads
+        window.onload = function() {
+            console.log('Page loaded, waiting for Google Maps...');
+        };
+    </script>
+    
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=drawing,geometry&callback=initMap"></script>
+</body>
+</html>
